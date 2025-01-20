@@ -9,18 +9,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.paging.compose.LazyPagingItems
 
 
 @Composable
-fun RepositoriesScreen(repos: List<Repository>) {
+//fun RepositoriesScreen(repos: List<Repository>) {
+fun RepositoriesScreen(repos: LazyPagingItems<Repository>) {
     LazyColumn(
         contentPadding = PaddingValues(
             vertical = 8.dp,
             horizontal = 8.dp
         )
     ) {
-        itemsIndexed(repos) { index, repo ->
-            RepositoryItem(index, repo) }
+        itemsIndexed(repos.itemSnapshotList) { index, repo ->
+            if (repo != null) {
+                RepositoryItem(index, repo)
+            }
+        }
     }
 }
 
@@ -28,7 +33,9 @@ fun RepositoriesScreen(repos: List<Repository>) {
 fun RepositoryItem(index: Int, item: Repository) {
     Card(
         elevation = 4.dp,
-        modifier = Modifier.padding(8.dp).height(120.dp)
+        modifier = Modifier
+            .padding(8.dp)
+            .height(120.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -39,16 +46,19 @@ fun RepositoryItem(index: Int, item: Repository) {
                 style = MaterialTheme.typography.h6,
                 modifier = Modifier
                     .weight(0.2f)
-                    .padding(8.dp))
+                    .padding(8.dp)
+            )
             Column(modifier = Modifier.weight(0.8f)) {
                 Text(
                     text = item.name,
-                    style = MaterialTheme.typography.h6)
+                    style = MaterialTheme.typography.h6
+                )
                 Text(
                     text = item.description,
                     style = MaterialTheme.typography.body2,
                     overflow = TextOverflow.Ellipsis,
-                    maxLines = 3)
+                    maxLines = 3
+                )
             }
         }
     }
