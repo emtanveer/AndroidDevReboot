@@ -14,6 +14,7 @@ import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,6 +25,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.codingtroops.repositories.utils.CustomSwipeRefresh
@@ -33,7 +36,12 @@ import kotlinx.coroutines.delay
 
 @Composable
 //fun RepositoriesScreen(repos: List<Repository>) {
-fun RepositoriesScreen(repos: LazyPagingItems<Repository>) {
+fun RepositoriesScreen(
+    repos: LazyPagingItems<Repository>,
+    timerText: String,
+    getTimer: () -> CustomCountdown,
+    onPauseTimer: () -> Unit
+) {
 
     var isRefreshing by remember { mutableStateOf(false) }
     var isInitialLoading by remember { mutableStateOf(true) } // Track if the app is loading for the first time
@@ -59,6 +67,10 @@ fun RepositoriesScreen(repos: LazyPagingItems<Repository>) {
                 horizontal = 8.dp
             )
         ) {
+            item {
+                CountdownItem(timerText, getTimer, onPauseTimer)
+            }
+
             items(count = repos.itemCount) { repo ->
                 // Ensure repo is not null before passing to RepositoryItem
                 repo?.let { itemsIndex ->
@@ -205,4 +217,26 @@ fun LoadingItem(
             modifier = Modifier.fillMaxSize()
         )
     }
+}
+
+@Composable
+private fun CountdownItem(
+    timerText: String,
+    getTimer: () -> CustomCountdown,
+    onPauseTimer: () -> Unit
+) {
+    val lifecycleOwner: LifecycleOwner =
+        LocalLifecycleOwner.current
+
+    val lifecycle = lifecycleOwner.lifecycle
+
+    DisposableEffect(key1 = lifecycleOwner) {
+        lifecycle.addObserver(getTimer())
+        onDispose {
+            onPauseTimer()
+            lifecycleOwner.lifecycle.removeObserver(getTimer())
+        }
+    }
+
+    Text(timerText)
 }
