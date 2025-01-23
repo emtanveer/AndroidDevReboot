@@ -18,10 +18,8 @@ class MainActivity : ComponentActivity() {
                 //val repos = viewModel.repositories.value
                 val reposFlow = viewModel.repositories
 
+                val lazyRepoItems: LazyPagingItems<Repository> = reposFlow.collectAsLazyPagingItems()
 
-                val lazyRepoItems
-                        : LazyPagingItems<Repository> =
-                    reposFlow.collectAsLazyPagingItems()
                 RepositoriesScreen(lazyRepoItems)
 
             }

@@ -22,10 +22,20 @@ class RepositoriesViewModel(
 //        }
 //    }
 
-    val repositories: Flow<PagingData<Repository>> =
-        Pager(
-            config = PagingConfig(pageSize = 20),
-            pagingSourceFactory = { //By doing so, the Paging library will know which PagingSource object to query for new pages
-                reposPagingSource //instance of type RepositoriesPagingSource
-            }).flow.cachedIn(viewModelScope)
+//    val repositories: Flow<PagingData<Repository>> =
+//        Pager(
+//            config = PagingConfig(pageSize = 20),
+//            pagingSourceFactory = { //By doing so, the Paging library will know which PagingSource object to query for new pages
+//                reposPagingSource //instance of type RepositoriesPagingSource
+//            }).flow.cachedIn(viewModelScope)
+
+    // Create a Pager with a factory to ensure a new PagingSource is created on refresh
+    val pager = Pager(
+        config = PagingConfig(pageSize = 20, enablePlaceholders = false),
+        pagingSourceFactory = { RepositoriesPagingSource() }  // Return a new instance of the PagingSource each time
+    )
+
+    // Use the pager in your ViewModel
+    val repositories = pager.flow.cachedIn(viewModelScope)
+
 }
