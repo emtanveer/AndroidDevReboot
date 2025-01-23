@@ -38,4 +38,20 @@ class RepositoriesViewModel(
     // Use the pager in your ViewModel
     val repositories = pager.flow.cachedIn(viewModelScope)
 
+    //CountDown Impl
+    val timerState = mutableStateOf("")
+    val timer: CustomCountdown = CustomCountdown(
+        onTick = { msLeft ->
+            timerState.value = (msLeft/1000).toString() + " seconds left"
+        },
+        onFinish = {
+            timerState.value = "You won a prize !"
+        }
+    )
+
+    override fun onCleared() {
+        super.onCleared()
+        timer.stop()
+    }
+
 }
